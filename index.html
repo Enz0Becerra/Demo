@@ -631,11 +631,16 @@ INSTRUCCIONES:
         })
       });
       const data = await response.json();
-      const reply = data.content?.[0]?.text || 'Lo siento, hubo un error. Por favor contactanos por WhatsApp.';
+      const reply = data?.content?.[0]?.text
+        || data?.message?.content?.[0]?.text
+        || data?.completion
+        || (typeof data === 'string' ? data : null)
+        || 'Lo siento, hubo un error. Por favor contactanos por WhatsApp al +54 9 261 498-2210';
       hideTyping();
       addMessage(reply, 'bot');
       history.push({ role: 'assistant', content: reply });
     } catch (e) {
+      console.error('Chat error:', e);
       hideTyping();
       addMessage('Hubo un problema de conexión. Podés contactarnos por WhatsApp al +54 9 261 498-2210 📱', 'bot');
     }
