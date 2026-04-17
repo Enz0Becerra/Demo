@@ -620,22 +620,25 @@ INSTRUCCIONES:
     showTyping();
 
     try {
-      const response = await fetch('https://demo.enzobecerra178.workers.dev', {
+      const res = await fetch('https://demo.enzobecerra178.workers.dev', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-3-5-sonnet-20241022',
           max_tokens: 1000,
           system: SYSTEM_PROMPT,
           messages: history
         })
       });
-      const data = await response.json();
-      const reply = data?.content?.[0]?.text
-        || data?.message?.content?.[0]?.text
-        || data?.completion
-        || (typeof data === 'string' ? data : null)
-        || 'Lo siento, hubo un error. Por favor contactanos por WhatsApp al +54 9 261 498-2210';
+      const data = await res.json();
+      if (!res.ok) {
+        console.error('Error de la API:', data);
+        hideTyping();
+        addMessage('Hubo un error conectando con el asistente. Por favor contactanos por WhatsApp 📱', 'bot');
+        isTyping = false;
+        return;
+      }
+      const reply = data.content[0].text;
       hideTyping();
       addMessage(reply, 'bot');
       history.push({ role: 'assistant', content: reply });
